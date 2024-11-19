@@ -75,17 +75,19 @@ impl Controller {
 
             sndbuf = sys::socket::getsockopt(fd, sys::socket::sockopt::SndBuf)?;
             debug!("Tried to set socket buffer size to {}, got {}", newsize, sndbuf);
-
-            if newsize > sndbuf {
-                if let Err(err) = sys::socket::setsockopt(
-                    fd,
-                    sys::socket::sockopt::SndBufForce,
-                    &newsize,
-                ) {
-                    debug!("Cannot set buffer size to {}: {}", newsize, err);
-                } else {
-                    sndbuf = sys::socket::getsockopt(fd, sys::socket::sockopt::SndBuf)?;
-                    debug!("Tried to force socket buffer size to {}, got {}", newsize, sndbuf);
+            #[cfg(target_os = "linux")]
+            {
+                if newsize > sndbuf {
+                    if let Err(err) = sys::socket::setsockopt(
+                        fd,
+                        sys::socket::sockopt::SndBufForce,
+                        &newsize,
+                    ) {
+                        debug!("Cannot set buffer size to {}: {}", newsize, err);
+                    } else {
+                        sndbuf = sys::socket::getsockopt(fd, sys::socket::sockopt::SndBuf)?;
+                        debug!("Tried to force socket buffer size to {}, got {}", newsize, sndbuf);
+                    }
                 }
             }
         }
