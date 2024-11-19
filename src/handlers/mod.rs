@@ -15,7 +15,12 @@ use std::ffi::OsStr;
 use std::fs;
 use std::fs::{File, Metadata};
 use std::io::{self, Seek};
+#[cfg(target_os = "linux")]
 use std::os::linux::fs::MetadataExt as _;
+
+#[cfg(target_os = "macos")]
+use std::os::macos::fs::MetadataExt as _;
+
 use std::os::unix::fs as unix_fs;
 use std::os::unix::fs::MetadataExt as _;
 use std::path::{Path, PathBuf};
